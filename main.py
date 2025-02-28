@@ -1,4 +1,8 @@
 import json
+
+import caldav
+from librus_apix.client import new_client, Client, Token
+
 from applecalendar import AppleCalendar, CurrentWeek
 
 from flask import Flask, jsonify
@@ -15,6 +19,7 @@ api = Api(app, version=app.config['VERSION'], title='Librus & iCloud Sync API',
 
 ns = api.namespace('sync', description='Sync operations')
 
+
 @ns.route('/sync')
 class LibrusICloudSync(Resource):
     @api.doc(params={'librus_username': 'Librus username',
@@ -24,13 +29,17 @@ class LibrusICloudSync(Resource):
                      'icloud_password': 'iCloud password'})
     def post(self):
         params = api.payload
-        calendar = AppleCalendar(params['icloud_username'], params['icloud_password'], params['icloud_name'])
-        schedule = Schedule(params['librus_username'], params['librus_password'])
-
-        return jsonify({'success': True})
+        calendar = AppleCalendar(
+            get_dav_client(params['icloud_username'], params['icloud_password']),
+            params['icloud_name']
+        )
+        schedule = Schedule(get_librus_client(params['librus_username'], params['librus_password']))
+        result = calendar.process_schedule(schedule.get_current_week())
+        return jsonify(result)
 
 
 nt = api.namespace('read', description='Read operations')
+
 
 @nt.route('/schedule')
 class ReadSchedule(Resource):
@@ -39,7 +48,7 @@ class ReadSchedule(Resource):
     def post(self):
         params = api.payload
         current_week = CurrentWeek()
-        schedule = Schedule(params['librus_username'], params['librus_password'])
+        schedule = Schedule(get_librus_client(params['librus_username'], params['librus_password']))
         return jsonify({
             'start': current_week.monday,
             'end': current_week.friday,
@@ -55,12 +64,26 @@ class ReadCalendar(Resource):
     def post(self):
         params = api.payload
         current_week = CurrentWeek()
-        calendar = AppleCalendar(params['icloud_username'], params['icloud_password'], params['icloud_name'])
+        calendar = AppleCalendar(get_dav_client(params['icloud_username'], params['icloud_password']), params['icloud_name'])
         return jsonify({
             'start': current_week.monday,
             'end': current_week.friday,
             'events': calendar.get_current_week()
         })
+
+
+def get_librus_client(login, password):
+    client: Client = new_client()
+    _token: Token = client.get_token(login, password)
+    key = client.token.API_Key
+    token = Token(API_Key=key)
+    return new_client(token=token)
+
+
+def get_dav_client(login, password):
+    url = "https://caldav.icloud.com"
+    client = caldav.DAVClient(url=url, username=login, password=password)
+    return client.principal()
 
 
 if __name__ == '__main__':

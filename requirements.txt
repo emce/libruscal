@@ -1,6 +1,7 @@
 librus-apix
-pytest
 caldav
 flask
 flask_restx
 requests
+flask-restx
+python-dateutil

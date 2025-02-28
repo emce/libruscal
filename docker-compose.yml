@@ -1,0 +1,14 @@
+services:
+  libruscal:
+    container_name: libruscal
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "9007:9007"
+    networks:
+      - bridged
+      
+networks:
+    bridged:
+      external: true
