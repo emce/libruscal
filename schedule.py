@@ -4,7 +4,7 @@ from dateutil import parser
 from librus_apix.client import Client, new_client, Token
 from librus_apix.timetable import get_timetable
 
-from applecalendar import CurrentWeek
+from current_week import CurrentWeek
 
 
 class Schedule:

@@ -3,7 +3,8 @@ import json
 import caldav
 from librus_apix.client import new_client, Client, Token
 
-from applecalendar import AppleCalendar, CurrentWeek
+from applecalendar import AppleCalendar
+from current_week import CurrentWeek
 
 from flask import Flask, jsonify
 from flask_restx import Api, Resource
