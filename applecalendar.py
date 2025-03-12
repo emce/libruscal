@@ -22,8 +22,7 @@ class AppleCalendar:
 
     def clear_current_week(self):
         calendar = self.client.calendar(self.name)
-        for event in self.client.calendar(self.name).search(
-                start=self.current_week.monday, end=self.current_week.friday, event=True, expand=True):
+        for event in calendar.events():
             for component in event.icalendar_instance.walk():
                 if component.name != "VEVENT":
                     continue
