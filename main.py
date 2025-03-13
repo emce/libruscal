@@ -73,6 +73,17 @@ class ReadCalendar(Resource):
         })
 
 
+@nt.route('/clear')
+class ClearCalendar(Resource):
+    @api.doc(params={'icloud_name': 'iCloud calendar name',
+                     'icloud_username': 'iCloud username',
+                     'icloud_password': 'iCloud password'})
+    def post(self):
+        params = api.payload
+        calendar = AppleCalendar(get_dav_client(params['icloud_username'], params['icloud_password']), params['icloud_name'])
+        return jsonify(calendar.clear_current_week())
+
+
 def get_librus_client(login, password):
     client: Client = new_client()
     _token: Token = client.get_token(login, password)

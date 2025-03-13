@@ -27,6 +27,7 @@ class AppleCalendar:
                 if component.name != "VEVENT":
                     continue
                 calendar.event(component.get("uid")).delete()
+        return { "result": "success" }
 
 
     def add_event(self, start, end, summary, description, location):
